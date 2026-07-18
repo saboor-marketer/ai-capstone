@@ -1,22 +1,37 @@
-# ai-capstone
+##  ai-capstone
 
-This repo contains my capstone project for the AI-assisted development track.
+My capstone for internship
 
-# Tech Stack
+## About
 
-- HTML
-- CSS
-- Javascript
-- Bootstrap
-- Node.js
+I built it to learn git and controls. 
 
-## Goals
+## Tech Stack
 
+- HTML5
+- CSS3
+- JavaScript (ES6)
+- Bootstrap 5
 
+## Features
 
-- Learn AI-assisted development
-- Build Projects
-- Practice Git
+- Feature 1
+- Feature 2
 
+## Getting Started
 
+### Prerequisites
+
+- A modern browser
+- (Optional) Node.js if you add a dev server
+
+### Installation
+
+```bash
+
+git clone [https://github.com/your-username/ai-capstone.git](https://github.com/your-username/ai-capstone.git)
+
+cd ai-capstone
+
+```
 
