@@ -1,22 +1,11 @@
-## Project Rules
+# Project Rules
 
-Stack
+1. Every form input must have an associated `<label>`.
 
-- HTML5
-- CSS3
-- Javascript ES6
-- Bootstrap 5
+2. Client-side validation is required before form submission.
 
-Coding Style
+3. Use Bootstrap 5 for layout and responsiveness.
 
-- Use semantic HTML
-- Prefer vanilla javascript
-- keep files organized
-- Write clean code
-- Explain changes before applying them
+4. Use semantic HTML5 elements.
 
-Git
-
-Use Conventional Commits
-
----
+5. Verify generated code manually before committing.
