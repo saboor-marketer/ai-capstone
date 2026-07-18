@@ -1,0 +1,1 @@
+Claude forgot to validate that the password and confirm password fields matched. I added that check manually after testing.
