@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-dark: #293c53;
+  }
+  body {
+    background-color: #f4f6f9;
+  }
+  .settings-card {
+    max-width: 720px;
+    margin: 3rem auto;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+  }
+  .settings-card .card-header {
+    background-color: var(--accent);
+    color: #fff;
+    border-radius: 0.75rem 0.75rem 0 0;
+    padding: 1.5rem;
+  }
+  .form-check.form-switch {
+    padding-left: 2.5em;
+  }
+  .btn-primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+  .btn-primary:hover,
+  .btn-primary:focus {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+  }
+  /* Visible keyboard focus for accessibility */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 3px solid #ffb703;
+    outline-offset: 2px;
+  }
+  .password-strength-hint {
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<main class="container px-3">
+  <div class="card settings-card">
+    <div class="card-header">
+      <h1 class="h4 mb-1">Account Settings</h1>
+      <p class="mb-0 small">Update your profile and preferences below.</p>
+    </div>
+
+    <div class="card-body p-4">
+      <form id="settingsForm" novalidate aria-describedby="formStatus">
+
+        <fieldset class="mb-4">
+          <legend class="h6 text-uppercase text-muted mb-3">Profile</legend>
+
+          <div class="row g-3">
+            <!-- Full Name -->
+            <div class="col-md-6">
+              <label for="fullName" class="form-label">Full Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fullName"
+                name="fullName"
+                autocomplete="name"
+                aria-describedby="fullNameError"
+                aria-invalid="false"
+                required
+              >
+              <div id="fullNameError" class="invalid-feedback">
+                Please enter your full name (letters only, at least 2 characters).
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                autocomplete="email"
+                aria-describedby="emailError"
+                aria-invalid="false"
+                required
+              >
+              <div id="emailError" class="invalid-feedback">
+                Please enter a valid email address.
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="col-md-6">
+              <label for="password" class="form-label">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                autocomplete="new-password"
+                aria-describedby="passwordHelp passwordError"
+                aria-invalid="false"
+                required
+              >
+              <div id="passwordHelp" class="form-text password-strength-hint">
+                Minimum 8 characters, with at least one letter and one number.
+              </div>
+              <div id="passwordError" class="invalid-feedback">
+                Password must be at least 8 characters and include a letter and a number.
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                name="confirmPassword"
+                autocomplete="new-password"
+                aria-describedby="confirmPasswordError"
+                aria-invalid="false"
+                required
+              >
+              <div id="confirmPasswordError" class="invalid-feedback">
+                Passwords do not match.
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+          <legend class="h6 text-uppercase text-muted mb-3">Preferences</legend>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="darkMode" name="darkMode">
+            <label class="form-check-label" for="darkMode">Dark Mode</label>
+          </div>
+
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="emailNotifications" name="emailNotifications" checked>
+            <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+          </div>
+        </fieldset>
+
+        <div id="formStatus" class="alert d-none" role="alert" aria-live="polite"></div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const form = document.getElementById('settingsForm');
+  const fullName = document.getElementById('fullName');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const confirmPassword = document.getElementById('confirmPassword');
+  const formStatus = document.getElementById('formStatus');
+
+  const NAME_REGEX = /^[A-Za-z\s'-]{2,}$/;
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
+  // Tracks whether the user has attempted a submit yet,
+  // so we don't show errors before they've interacted with the form.
+  let submitted = false;
+
+  function setValidity(input, isValid, errorId, message) {
+    const errorEl = document.getElementById(errorId);
+    input.setAttribute('aria-invalid', String(!isValid));
+    if (isValid) {
+      input.classList.remove('is-invalid');
+      input.classList.add('is-valid');
+    } else {
+      input.classList.remove('is-valid');
+      input.classList.add('is-invalid');
+      if (message && errorEl) {
+        errorEl.textContent = message;
+      }
+    }
+    return isValid;
+  }
+
+  function validateFullName() {
+    const value = fullName.value.trim();
+    const isValid = NAME_REGEX.test(value);
+    return setValidity(fullName, isValid, 'fullNameError');
+  }
+
+  function validateEmail() {
+    const value = email.value.trim();
+    const isValid = EMAIL_REGEX.test(value);
+    return setValidity(email, isValid, 'emailError');
+  }
+
+  function validatePassword() {
+    const value = password.value;
+    const isValid = PASSWORD_REGEX.test(value);
+    const result = setValidity(password, isValid, 'passwordError');
+    // Re-check confirm password whenever password changes, but only
+    // if the user has already touched confirmPassword or submitted once.
+    if (confirmPassword.value.length > 0 || submitted) {
+      validateConfirmPassword();
+    }
+    return result;
+  }
+
+  function validateConfirmPassword() {
+    const isValid = confirmPassword.value.length > 0 && confirmPassword.value === password.value;
+    return setValidity(confirmPassword, isValid, 'confirmPasswordError');
+  }
+
+  function validateAll() {
+    const results = [
+      validateFullName(),
+      validateEmail(),
+      validatePassword(),
+      validateConfirmPassword()
+    ];
+    return results.every(Boolean);
+  }
+
+  function showStatus(message, type) {
+    formStatus.textContent = message;
+    formStatus.classList.remove('d-none', 'alert-success', 'alert-danger');
+    formStatus.classList.add(type === 'success' ? 'alert-success' : 'alert-danger');
+  }
+
+  // Live validation after first submit attempt
+  fullName.addEventListener('input', () => { if (submitted) validateFullName(); });
+  email.addEventListener('input', () => { if (submitted) validateEmail(); });
+  password.addEventListener('input', () => { if (submitted) validatePassword(); });
+  confirmPassword.addEventListener('input', () => { if (submitted) validateConfirmPassword(); });
+
+  // Also validate on blur even before first submit, for early feedback
+  fullName.addEventListener('blur', validateFullName);
+  email.addEventListener('blur', validateEmail);
+  password.addEventListener('blur', validatePassword);
+  confirmPassword.addEventListener('blur', validateConfirmPassword);
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    submitted = true;
+
+    const isFormValid = validateAll();
+
+    if (!isFormValid) {
+      showStatus('Please fix the errors below before saving.', 'error');
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+      }
+      return;
+    }
+
+    showStatus('Settings saved successfully.', 'success');
+    // In a real app: send form data to the server here.
+  });
+
+  form.addEventListener('reset', function () {
+    submitted = false;
+    [fullName, email, password, confirmPassword].forEach((input) => {
+      input.classList.remove('is-valid', 'is-invalid');
+      input.setAttribute('aria-invalid', 'false');
+    });
+    formStatus.classList.add('d-none');
+  });
+})();
+</script>
+
+</body>
+</html>
